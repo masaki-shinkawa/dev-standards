@@ -1,0 +1,15 @@
+# Codex CLI 設定ファイル
+# このファイルは setup.sh によって ~/.codex/config.toml にシンボリックリンクされます。
+# APIキーは環境変数で管理し、このファイルには含めないでください。
+
+[mcp]
+
+  # Outline（社内wiki）MCP サーバー
+  # 必要な環境変数: OUTLINE_API_KEY
+  [[mcp.servers]]
+  name    = "outline"
+  command = "npx"
+  args    = ["-y", "@modelcontextprotocol/server-outline"]
+
+  [mcp.servers.env]
+  OUTLINE_API_KEY = "${OUTLINE_API_KEY}"
