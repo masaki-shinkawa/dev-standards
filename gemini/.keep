@@ -1,0 +1,7 @@
+# Gemini CLI 設定
+# このディレクトリは setup.sh によって ~/.gemini/ にシンボリックリンクされます。
+#
+# 追加予定:
+#   settings.json  - MCP サーバー設定など
+#   GEMINI.md      - 全プロジェクト共通インストラクション
+#   extensions/    - カスタム拡張

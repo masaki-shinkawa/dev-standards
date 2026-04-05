@@ -1,0 +1,6 @@
+# GitHub Copilot CLI 設定
+# このディレクトリは setup.sh によって ~/.copilot/ にシンボリックリンクされます。
+#
+# 追加予定:
+#   mcp-config.json  - MCP サーバー設定
+#   agents/          - カスタムエージェント定義

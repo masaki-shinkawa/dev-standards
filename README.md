@@ -7,13 +7,15 @@
 ```
 dev-standards/
 ├── setup.sh                        # セットアップスクリプト
-├── codex/
-│   ├── config.toml                 # Outline MCP設定
-│   ├── AGENTS.md                   # 全プロジェクト共通インストラクション
+├── codex/                          # Codex CLI  -> ~/.codex/
+│   ├── config.toml                 #   Outline MCP設定
+│   ├── AGENTS.md                   #   全プロジェクト共通インストラクション
 │   └── skills/
 │       └── create-pr/
-│           └── SKILL.md            # PR作成スキル
-└── claude/                         # Claude Code用設定（将来追加予定）
+│           └── SKILL.md            #   PR作成スキル
+├── claude/                         # Claude Code -> ~/.claude/  （将来追加予定）
+├── gemini/                         # Gemini CLI  -> ~/.gemini/  （将来追加予定）
+└── copilot/                        # Copilot CLI -> ~/.copilot/ （将来追加予定）
 ```
 
 ## オンボーディング手順
@@ -72,9 +74,19 @@ Outline MCP サーバーが表示されれば設定完了です。
 
 `/create-pr` でPull Requestを作成します。`.github/pull_request_template.md` が存在するプロジェクトでは自動的にテンプレートが使用されます。
 
+## 対応ツール
+
+| ディレクトリ | ツール | インストール先 | 状態 |
+|---|---|---|---|
+| `codex/` | Codex CLI | `~/.codex/` | 設定済み |
+| `claude/` | Claude Code | `~/.claude/` | 準備中 |
+| `gemini/` | Gemini CLI | `~/.gemini/` | 準備中 |
+| `copilot/` | GitHub Copilot CLI | `~/.copilot/` | 準備中 |
+
 ## 今後の追加予定
 
-- Claude Code 用設定（`claude/`）
-- Gemini CLI 用設定
+- Claude Code 用設定（`settings.json`、`CLAUDE.md`、カスタムコマンド）
+- Gemini CLI 用設定（`settings.json`、`GEMINI.md`）
+- GitHub Copilot CLI 用設定（`mcp-config.json`、カスタムエージェント）
 - ESLint 共通設定
 - GitHub Actions テンプレート

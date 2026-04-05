@@ -1,0 +1,7 @@
+# Claude Code 設定
+# このディレクトリは setup.sh によって ~/.claude/ にシンボリックリンクされます。
+#
+# 追加予定:
+#   settings.json  - MCP サーバー設定など
+#   CLAUDE.md      - 全プロジェクト共通インストラクション
+#   commands/      - カスタムスラッシュコマンド
