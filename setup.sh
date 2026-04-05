@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# ツールごとの設定: "リポジトリ内ディレクトリ:インストール先"
+# ツールごとの設定: "リポジトリ内ディレクトリ -> インストール先"
 declare -A TOOL_MAP=(
   [codex]="${HOME}/.codex"
   [claude]="${HOME}/.claude"
@@ -54,9 +54,11 @@ link_dir() {
 # -------------------------------------------------------------------
 # メイン処理
 # -------------------------------------------------------------------
-echo "dev-standards セットアップを開始します..."
+echo "=== dev-standards セットアップ ==="
 echo ""
 
+# 1. ツール設定のシンボリックリンク
+echo "--- 設定ファイルをリンク ---"
 for tool in "${!TOOL_MAP[@]}"; do
   src="${SCRIPT_DIR}/${tool}"
   dest="${TOOL_MAP[$tool]}"
@@ -71,7 +73,16 @@ for tool in "${!TOOL_MAP[@]}"; do
   echo ""
 done
 
-echo "セットアップ完了。"
+# 2. スキルを各ツールのネイティブ形式に変換・配置
+echo "--- スキルを変換・配置 ---"
+if [ -d "${SCRIPT_DIR}/skills" ]; then
+  bash "${SCRIPT_DIR}/convert.sh"
+else
+  echo "  [skip] skills/ ディレクトリが存在しません"
+fi
+
+echo ""
+echo "=== セットアップ完了 ==="
 echo ""
 echo "次のステップ:"
 echo "  1. 以下を ~/.bashrc または ~/.zshrc に追記してください:"

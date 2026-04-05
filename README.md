@@ -6,16 +6,17 @@
 
 ```
 dev-standards/
-├── setup.sh                        # セットアップスクリプト
-├── codex/                          # Codex CLI  -> ~/.codex/
+├── setup.sh                        # セットアップスクリプト（設定リンク + convert.sh 呼び出し）
+├── convert.sh                      # スキルを各ツールのネイティブ形式に変換
+├── skills/                         # ツール共通スキル（YAML frontmatter 付き SKILL.md）
+│   └── create-pr/
+│       └── SKILL.md
+├── codex/                          # Codex CLI 設定  -> ~/.codex/
 │   ├── config.toml                 #   Outline MCP設定
-│   ├── AGENTS.md                   #   全プロジェクト共通インストラクション
-│   └── skills/
-│       └── create-pr/
-│           └── SKILL.md            #   PR作成スキル
-├── claude/                         # Claude Code -> ~/.claude/  （将来追加予定）
-├── gemini/                         # Gemini CLI  -> ~/.gemini/  （将来追加予定）
-└── copilot/                        # Copilot CLI -> ~/.copilot/ （将来追加予定）
+│   └── AGENTS.md                   #   全プロジェクト共通インストラクション
+├── claude/                         # Claude Code 設定 -> ~/.claude/  （将来追加予定）
+├── gemini/                         # Gemini CLI 設定  -> ~/.gemini/  （将来追加予定）
+└── copilot/                        # Copilot CLI 設定 -> ~/.copilot/ （将来追加予定）
 ```
 
 ## オンボーディング手順
@@ -69,6 +70,24 @@ Outline MCP サーバーが表示されれば設定完了です。
 - **用途**: 設計ドキュメント・仕様書の参照
 
 ## スキル
+
+スキルは `skills/*/SKILL.md` に YAML frontmatter 付きで記述します。`setup.sh`（内部で `convert.sh` を呼び出す）を実行すると、各ツールのネイティブ形式に自動変換されます。
+
+| 変換先 | 配置パス |
+|---|---|
+| Codex CLI | `~/.codex/skills/<name>/SKILL.md` |
+| Claude Code | `~/.claude/commands/<name>.md`（slash command） |
+| Gemini CLI | `~/.gemini/skills/<name>/SKILL.md` |
+| Copilot CLI | `~/.copilot/agents/<name>.md` |
+
+特定ツールだけ再変換したい場合:
+
+```bash
+./convert.sh --tool claude
+./convert.sh --tool codex
+# 変更内容の確認だけしたい場合
+./convert.sh --dry-run
+```
 
 ### create-pr
 

@@ -1,3 +1,9 @@
+---
+name: create-pr
+description: GitHub Pull Requestをgh CLIで作成する。PRテンプレートがあれば自動適用。
+tools: [bash]
+---
+
 # create-pr
 
 GitHub Pull Requestを作成します。
