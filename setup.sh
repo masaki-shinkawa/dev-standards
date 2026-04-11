@@ -3,13 +3,75 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# ツールごとの設定: "リポジトリ内ディレクトリ -> インストール先"
+# ツールごとの設定: ディレクトリ名 -> インストール先
 declare -A TOOL_MAP=(
   [codex]="${HOME}/.codex"
   [claude]="${HOME}/.claude"
   [gemini]="${HOME}/.gemini"
   [copilot]="${HOME}/.copilot"
 )
+
+VALID_TOOLS=(codex claude gemini copilot)
+
+# -------------------------------------------------------------------
+# 使い方
+# -------------------------------------------------------------------
+usage() {
+  cat <<EOF
+使い方: setup.sh [--tool <name>[,<name>...]] [--help]
+
+オプション:
+  --tool <name>  セットアップ対象のツールをカンマ区切りで指定
+                 指定しない場合はすべてのツールを対象とする
+                 有効な値: ${VALID_TOOLS[*]}
+  --help         このヘルプを表示
+
+例:
+  ./setup.sh                        # すべてのツールをセットアップ
+  ./setup.sh --tool claude          # Claude Code のみ
+  ./setup.sh --tool codex,claude    # Codex CLI と Claude Code
+EOF
+}
+
+# -------------------------------------------------------------------
+# 引数パース
+# -------------------------------------------------------------------
+TARGET_TOOLS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --tool)
+      IFS=',' read -ra TARGET_TOOLS <<< "$2"
+      shift 2
+      ;;
+    --help|-h)
+      usage; exit 0
+      ;;
+    *)
+      echo "不明なオプション: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+# 引数なしの場合は全ツールを対象にする
+if [[ ${#TARGET_TOOLS[@]} -eq 0 ]]; then
+  TARGET_TOOLS=("${VALID_TOOLS[@]}")
+fi
+
+# 指定ツール名のバリデーション
+for t in "${TARGET_TOOLS[@]}"; do
+  valid=false
+  for v in "${VALID_TOOLS[@]}"; do
+    [[ "${t}" == "${v}" ]] && valid=true && break
+  done
+  if ! "${valid}"; then
+    echo "エラー: 不明なツール '${t}'" >&2
+    echo "有効な値: ${VALID_TOOLS[*]}" >&2
+    exit 1
+  fi
+done
 
 # -------------------------------------------------------------------
 # シンボリックリンクを作成するヘルパー関数
@@ -54,12 +116,12 @@ link_dir() {
 # -------------------------------------------------------------------
 # メイン処理
 # -------------------------------------------------------------------
-echo "=== dev-standards セットアップ ==="
+echo "=== dev-standards セットアップ (対象: ${TARGET_TOOLS[*]}) ==="
 echo ""
 
 # 1. ツール設定のシンボリックリンク
 echo "--- 設定ファイルをリンク ---"
-for tool in "${!TOOL_MAP[@]}"; do
+for tool in "${TARGET_TOOLS[@]}"; do
   src="${SCRIPT_DIR}/${tool}"
   dest="${TOOL_MAP[$tool]}"
 
@@ -76,7 +138,15 @@ done
 # 2. スキルを各ツールのネイティブ形式に変換・配置
 echo "--- スキルを変換・配置 ---"
 if [ -d "${SCRIPT_DIR}/skills" ]; then
-  bash "${SCRIPT_DIR}/convert.sh"
+  # 対象ツールが1つなら --tool を渡す、複数または全ツールなら all
+  if [[ ${#TARGET_TOOLS[@]} -eq 1 ]]; then
+    bash "${SCRIPT_DIR}/convert.sh" --tool "${TARGET_TOOLS[0]}"
+  else
+    # 複数指定の場合はツールごとに呼び出す
+    for tool in "${TARGET_TOOLS[@]}"; do
+      bash "${SCRIPT_DIR}/convert.sh" --tool "${tool}"
+    done
+  fi
 else
   echo "  [skip] skills/ ディレクトリが存在しません"
 fi
@@ -88,9 +158,3 @@ echo "次のステップ:"
 echo "  1. 以下を ~/.bashrc または ~/.zshrc に追記してください:"
 echo "       export OUTLINE_API_KEY=\"your-api-key-here\""
 echo "  2. シェルを再読み込み: source ~/.bashrc"
-echo ""
-echo "動作確認:"
-echo "  Codex CLI  : codex config show"
-echo "  Claude Code: claude config list"
-echo "  Gemini CLI : gemini --version"
-echo "  Copilot CLI: gh copilot --version"
