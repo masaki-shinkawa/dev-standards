@@ -18,16 +18,16 @@ VALID_TOOLS=(codex claude gemini copilot)
 # -------------------------------------------------------------------
 usage() {
   cat <<EOF
-使い方: setup.sh [--tool <name>[,<name>...]] [--help]
+使い方: setup.sh --all | --tool <name>[,<name>...] [--help]
 
 オプション:
+  --all          すべてのツールをセットアップ
   --tool <name>  セットアップ対象のツールをカンマ区切りで指定
-                 指定しない場合はすべてのツールを対象とする
                  有効な値: ${VALID_TOOLS[*]}
   --help         このヘルプを表示
 
 例:
-  ./setup.sh                        # すべてのツールをセットアップ
+  ./setup.sh --all                  # すべてのツールをセットアップ
   ./setup.sh --tool claude          # Claude Code のみ
   ./setup.sh --tool codex,claude    # Codex CLI と Claude Code
 EOF
@@ -40,6 +40,10 @@ TARGET_TOOLS=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --all)
+      TARGET_TOOLS=("${VALID_TOOLS[@]}")
+      shift
+      ;;
     --tool)
       IFS=',' read -ra TARGET_TOOLS <<< "$2"
       shift 2
@@ -55,9 +59,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# 引数なしの場合は全ツールを対象にする
+# 引数なしはヘルプを表示して終了
 if [[ ${#TARGET_TOOLS[@]} -eq 0 ]]; then
-  TARGET_TOOLS=("${VALID_TOOLS[@]}")
+  usage; exit 0
 fi
 
 # 指定ツール名のバリデーション
