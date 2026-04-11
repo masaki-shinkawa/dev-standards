@@ -110,14 +110,18 @@ write_file() {
 # 変換関数
 # -------------------------------------------------------------------
 
-# Codex CLI: ~/.codex/skills/<name>/SKILL.md
-# SKILL.md をそのままコピー（Codex は YAML frontmatter ごと読む）
-convert_codex() {
+# SKILL.md をそのままコピーするツール用の共通ヘルパー
+convert_passthrough() {
   local skill_file="$1"
-  local name="$2"
-  local dest="${HOME}/.codex/skills/${name}/SKILL.md"
+  local dest="$2"
+  local label="$3"
   write_file "${dest}" "$(cat "${skill_file}")"
-  success "codex  : ${dest}"
+  success "${label}: ${dest}"
+}
+
+# Codex CLI: ~/.codex/skills/<name>/SKILL.md
+convert_codex() {
+  convert_passthrough "$1" "${HOME}/.codex/skills/$2/SKILL.md" "codex  "
 }
 
 # Claude Code: ~/.claude/commands/<name>.md
@@ -155,13 +159,8 @@ convert_claude() {
 }
 
 # Gemini CLI: ~/.gemini/skills/<name>/SKILL.md
-# Codex と同じく SKILL.md をそのまま配置
 convert_gemini() {
-  local skill_file="$1"
-  local name="$2"
-  local dest="${HOME}/.gemini/skills/${name}/SKILL.md"
-  write_file "${dest}" "$(cat "${skill_file}")"
-  success "gemini : ${dest}"
+  convert_passthrough "$1" "${HOME}/.gemini/skills/$2/SKILL.md" "gemini "
 }
 
 # GitHub Copilot CLI: ~/.copilot/agents/<name>.md
@@ -194,13 +193,12 @@ info "スキルを変換します (tool=${TARGET_TOOL}, dry-run=${DRY_RUN})"
 echo ""
 
 converted=0
-skipped=0
 
 for skill_file in "${SKILLS_DIR}"/*/SKILL.md; do
   [[ -f "${skill_file}" ]] || continue
 
-  skill_dir="$(dirname "${skill_file}")"
-  name="$(basename "${skill_dir}")"
+  name="${skill_file%/SKILL.md}"
+  name="${name##*/}"
 
   info "▶ ${name}"
 

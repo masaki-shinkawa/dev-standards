@@ -88,9 +88,11 @@ link_dir() {
   tool="$(basename "${src}")"
 
   # ソースディレクトリが空（.keep のみ）なら設定未整備としてスキップ
-  local file_count
-  file_count=$(find "${src}" -not -name ".keep" -not -path "${src}" | wc -l)
-  if [ "${file_count}" -eq 0 ]; then
+  local has_content=false
+  for f in "${src}"/*; do
+    [[ -e "${f}" && "${f##*/}" != ".keep" ]] && has_content=true && break
+  done
+  if ! "${has_content}"; then
     echo "  [skip] ${tool}: 設定ファイルがありません（将来追加予定）"
     return
   fi
@@ -142,15 +144,9 @@ done
 # 2. スキルを各ツールのネイティブ形式に変換・配置
 echo "--- スキルを変換・配置 ---"
 if [ -d "${SCRIPT_DIR}/skills" ]; then
-  # 対象ツールが1つなら --tool を渡す、複数または全ツールなら all
-  if [[ ${#TARGET_TOOLS[@]} -eq 1 ]]; then
-    bash "${SCRIPT_DIR}/convert.sh" --tool "${TARGET_TOOLS[0]}"
-  else
-    # 複数指定の場合はツールごとに呼び出す
-    for tool in "${TARGET_TOOLS[@]}"; do
-      bash "${SCRIPT_DIR}/convert.sh" --tool "${tool}"
-    done
-  fi
+  for tool in "${TARGET_TOOLS[@]}"; do
+    bash "${SCRIPT_DIR}/convert.sh" --tool "${tool}"
+  done
 else
   echo "  [skip] skills/ ディレクトリが存在しません"
 fi
